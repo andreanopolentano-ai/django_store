@@ -1,44 +1,43 @@
-from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DetailView, ListView, TemplateView
 
 from catalog.forms import ProductForm
 from catalog.models import Product
 
 
-def home(request):
+class ProductListView(ListView):
     """Отображает главную страницу со списком товаров."""
-    products = Product.objects.all()
-    context = {
-        "products": products,
-    }
-    return render(request, "catalog/home.html", context)
+
+    model = Product
+    template_name = "catalog/home.html"
+    context_object_name = "products"
+
+    def get_queryset(self):
+        """Возвращает список всех товаров."""
+        return Product.objects.all()
 
 
-def contacts(request):
+class ContactsTemplateView(TemplateView):
     """Отображает страницу контактов."""
-    return render(request, "catalog/contacts.html")
+
+    template_name = "catalog/contacts.html"
 
 
-def product_detail(request, pk):
+class ProductDetailView(DetailView):
     """Отображает подробную информацию о товаре."""
-    product = get_object_or_404(Product, pk=pk)
-    context = {
-        "product": product,
-    }
-    return render(request, "catalog/product_detail.html", context)
+
+    model = Product
+    template_name = "catalog/product_detail.html"
+    context_object_name = "product"
 
 
-def product_create(request):
+class ProductCreateView(CreateView):
     """Создает новый товар."""
-    if request.method == "POST":
-        form = ProductForm(request.POST, request.FILES)
 
-        if form.is_valid():
-            product = form.save()
-            return redirect("catalog:product_detail", pk=product.pk)
-    else:
-        form = ProductForm()
+    model = Product
+    form_class = ProductForm
+    template_name = "catalog/product_form.html"
 
-    context = {
-        "form": form,
-    }
-    return render(request, "catalog/product_form.html", context)
+    def get_success_url(self):
+        """Возвращает URL созданного товара."""
+        return reverse_lazy("catalog:product_detail", kwargs={"pk": self.object.pk})
