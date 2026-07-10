@@ -1,31 +1,44 @@
-from django.shortcuts import render
-from django.views.decorators.http import require_http_methods
+from django.shortcuts import get_object_or_404, redirect, render
+
+from catalog.forms import ProductForm
+from catalog.models import Product
 
 
 def home(request):
-    """Отображает главную страницу."""
-    return render(request, "catalog/home.html")
+    """Отображает главную страницу со списком товаров."""
+    products = Product.objects.all()
+    context = {
+        "products": products,
+    }
+    return render(request, "catalog/home.html", context)
 
 
-@require_http_methods(["GET", "POST"])
 def contacts(request):
-    """Отображает страницу контактов и обрабатывает форму."""
-    success_message = None
+    """Отображает страницу контактов."""
+    return render(request, "catalog/contacts.html")
 
+
+def product_detail(request, pk):
+    """Отображает подробную информацию о товаре."""
+    product = get_object_or_404(Product, pk=pk)
+    context = {
+        "product": product,
+    }
+    return render(request, "catalog/product_detail.html", context)
+
+
+def product_create(request):
+    """Создает новый товар."""
     if request.method == "POST":
-        name = request.POST.get("name")
-        email = request.POST.get("email")
-        message = request.POST.get("message")
+        form = ProductForm(request.POST, request.FILES)
 
-        print("Получены данные формы:")
-        print(f"Имя: {name}")
-        print(f"Почта: {email}")
-        print(f"Сообщение: {message}")
-
-        success_message = "Ваше сообщение успешно отправлено."
+        if form.is_valid():
+            product = form.save()
+            return redirect("catalog:product_detail", pk=product.pk)
+    else:
+        form = ProductForm()
 
     context = {
-        "success_message": success_message,
+        "form": form,
     }
-
-    return render(request, "catalog/contacts.html", context)
+    return render(request, "catalog/product_form.html", context)

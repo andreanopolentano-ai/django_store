@@ -1,0 +1,48 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}Главная | Django Store{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Каталог товаров</h1>
+    <a href="{% url 'catalog:product_create' %}" class="btn btn-primary">Добавить товар</a>
+</div>
+
+<div class="row">
+    {% for product in products %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if product.image %}
+    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+{% else %}
+    <div class="bg-secondary-subtle d-flex align-items-center justify-content-center" style="height: 250px;">
+        <span class="text-muted">Нет изображения</span>
+    </div>
+{% endif %}
+
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ product.name }}</h5>
+
+                    <p class="card-text">
+                        {{ product.description|truncatechars:100 }}
+                    </p>
+
+                    <p class="fw-bold mt-auto">
+                        Цена: {{ product.price }} ₽
+                    </p>
+
+                    <a href="{% url 'catalog:product_detail' product.pk %}" class="btn btn-outline-primary">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                Товары пока не добавлены.
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
