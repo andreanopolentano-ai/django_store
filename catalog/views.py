@@ -1,5 +1,14 @@
+"""Контроллеры приложения catalog."""
+
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView, TemplateView
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    ListView,
+    TemplateView,
+    UpdateView,
+)
 
 from catalog.forms import ProductForm
 from catalog.models import Product
@@ -41,3 +50,23 @@ class ProductCreateView(CreateView):
     def get_success_url(self):
         """Возвращает URL созданного товара."""
         return reverse_lazy("catalog:product_detail", kwargs={"pk": self.object.pk})
+
+
+class ProductUpdateView(UpdateView):
+    """Редактирует товар."""
+
+    model = Product
+    form_class = ProductForm
+    template_name = "catalog/product_form.html"
+
+    def get_success_url(self):
+        """Возвращает URL отредактированного товара."""
+        return reverse_lazy("catalog:product_detail", kwargs={"pk": self.object.pk})
+
+
+class ProductDeleteView(DeleteView):
+    """Удаляет товар."""
+
+    model = Product
+    template_name = "catalog/product_confirm_delete.html"
+    success_url = reverse_lazy("catalog:home")

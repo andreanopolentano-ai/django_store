@@ -7,12 +7,12 @@
     <div class="row g-0">
         <div class="col-md-5">
             {% if product.image %}
-    <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="{{ product.name }}">
-{% else %}
-    <div class="bg-secondary-subtle d-flex align-items-center justify-content-center h-100" style="min-height: 350px;">
-        <span class="text-muted">Нет изображения</span>
-    </div>
-{% endif %}
+                <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="{{ product.name }}">
+            {% else %}
+                <div class="bg-secondary-subtle d-flex align-items-center justify-content-center h-100" style="min-height: 350px;">
+                    <span class="text-muted">Нет изображения</span>
+                </div>
+            {% endif %}
         </div>
 
         <div class="col-md-7">
@@ -37,9 +37,19 @@
                     <small>Обновлен: {{ product.updated_at }}</small>
                 </p>
 
-                <a href="{% url 'catalog:home' %}" class="btn btn-secondary">
-                    Назад к товарам
-                </a>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'catalog:home' %}" class="btn btn-secondary">
+                        Назад к товарам
+                    </a>
+
+                    <a href="{% url 'catalog:product_update' product.pk %}" class="btn btn-warning">
+                        Редактировать
+                    </a>
+
+                    <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-danger">
+                        Удалить
+                    </a>
+                </div>
             </div>
         </div>
     </div>
