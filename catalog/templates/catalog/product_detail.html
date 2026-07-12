@@ -32,23 +32,54 @@
                     <strong>Цена:</strong> {{ product.price }} ₽
                 </p>
 
+                <p class="card-text">
+                    <strong>Статус публикации:</strong>
+                    {% if product.is_published %}
+                        опубликован
+                    {% else %}
+                        не опубликован
+                    {% endif %}
+                </p>
+
+                <p class="card-text">
+                    <strong>Владелец:</strong>
+                    {% if product.owner %}
+                        {{ product.owner.email }}
+                    {% else %}
+                        не указан
+                    {% endif %}
+                </p>
+
                 <p class="card-text text-muted">
                     <small>Создан: {{ product.created_at }}</small><br>
                     <small>Обновлен: {{ product.updated_at }}</small>
                 </p>
 
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap">
                     <a href="{% url 'catalog:home' %}" class="btn btn-secondary">
                         Назад к товарам
                     </a>
 
-                    <a href="{% url 'catalog:product_update' product.pk %}" class="btn btn-warning">
-                        Редактировать
-                    </a>
+                    {% if request.user == product.owner or perms.catalog.can_unpublish_product %}
+                        <a href="{% url 'catalog:product_update' product.pk %}" class="btn btn-warning">
+                            Редактировать
+                        </a>
+                    {% endif %}
 
-                    <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-danger">
-                        Удалить
-                    </a>
+                    {% if request.user == product.owner or perms.catalog.delete_product %}
+                        <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-danger">
+                            Удалить
+                        </a>
+                    {% endif %}
+
+                    {% if perms.catalog.can_unpublish_product and product.is_published %}
+                        <form method="post" action="{% url 'catalog:product_unpublish' product.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger">
+                                Снять с публикации
+                            </button>
+                        </form>
+                    {% endif %}
                 </div>
             </div>
         </div>

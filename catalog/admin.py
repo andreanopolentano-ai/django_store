@@ -1,3 +1,5 @@
+"""Админка приложения catalog."""
+
 from django.contrib import admin
 
 from catalog.models import Category, Product
@@ -14,6 +16,6 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     """Настройки отображения продуктов в админке."""
 
-    list_display = ("id", "name", "price", "category")
-    list_filter = ("category",)
+    list_display = ("id", "name", "price", "category", "owner", "is_published")
+    list_filter = ("category", "is_published")
     search_fields = ("name", "description")
