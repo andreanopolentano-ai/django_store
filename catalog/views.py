@@ -1,5 +1,6 @@
 """Контроллеры приложения catalog."""
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
@@ -32,7 +33,7 @@ class ContactsTemplateView(TemplateView):
     template_name = "catalog/contacts.html"
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(LoginRequiredMixin, DetailView):
     """Отображает подробную информацию о товаре."""
 
     model = Product
@@ -40,7 +41,7 @@ class ProductDetailView(DetailView):
     context_object_name = "product"
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(LoginRequiredMixin, CreateView):
     """Создает новый товар."""
 
     model = Product
@@ -52,7 +53,7 @@ class ProductCreateView(CreateView):
         return reverse_lazy("catalog:product_detail", kwargs={"pk": self.object.pk})
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     """Редактирует товар."""
 
     model = Product
@@ -64,7 +65,7 @@ class ProductUpdateView(UpdateView):
         return reverse_lazy("catalog:product_detail", kwargs={"pk": self.object.pk})
 
 
-class ProductDeleteView(DeleteView):
+class ProductDeleteView(LoginRequiredMixin, DeleteView):
     """Удаляет товар."""
 
     model = Product
