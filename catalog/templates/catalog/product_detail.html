@@ -25,7 +25,10 @@
                 </p>
 
                 <p class="card-text">
-                    <strong>Категория:</strong> {{ product.category }}
+                    <strong>Категория:</strong>
+                    <a href="{% url 'catalog:category_products' product.category.pk %}">
+                        {{ product.category }}
+                    </a>
                 </p>
 
                 <p class="card-text">

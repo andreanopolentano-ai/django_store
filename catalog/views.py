@@ -8,7 +8,10 @@ from django.contrib.auth.mixins import (
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -18,8 +21,10 @@ from django.views.generic import (
     UpdateView,
 )
 
+from catalog.constants import PRODUCT_DETAIL_CACHE_TTL
 from catalog.forms import ProductForm
-from catalog.models import Product
+from catalog.models import Category, Product
+from catalog.services import get_products_by_category
 
 
 class ProductListView(ListView):
@@ -50,8 +55,10 @@ class ContactsTemplateView(TemplateView):
     template_name = "catalog/contacts.html"
 
 
+@method_decorator(cache_page(PRODUCT_DETAIL_CACHE_TTL), name="dispatch")
+@method_decorator(vary_on_cookie, name="dispatch")
 class ProductDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-    """Отображает подробную информацию о товаре."""
+    """Отображает подробную информацию о товаре с кешированием страницы."""
 
     model = Product
     template_name = "catalog/product_detail.html"
@@ -142,3 +149,26 @@ class ProductUnpublishView(LoginRequiredMixin, PermissionRequiredMixin, View):
         product.save(update_fields=["is_published"])
 
         return redirect("catalog:product_detail", pk=product.pk)
+
+
+class CategoryProductListView(ListView):
+    """Отображает список продуктов указанной категории."""
+
+    template_name = "catalog/category_products.html"
+    context_object_name = "products"
+
+    def get_queryset(self):
+        """Получает продукты категории через сервисную функцию."""
+        self.category = get_object_or_404(
+            Category,
+            pk=self.kwargs["category_id"],
+        )
+
+        return get_products_by_category(self.category.pk)
+
+    def get_context_data(self, **kwargs):
+        """Добавляет категорию в контекст шаблона."""
+        context = super().get_context_data(**kwargs)
+        context["category"] = self.category
+
+        return context

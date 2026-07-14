@@ -18,3 +18,6 @@ ALLOWED_IMAGE_TYPES = [
     "image/jpeg",
     "image/png",
 ]
+
+PRODUCT_DETAIL_CACHE_TTL = 60 * 15
+CATEGORY_PRODUCTS_CACHE_TTL = 60 * 15
