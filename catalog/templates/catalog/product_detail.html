@@ -1,0 +1,91 @@
+{% extends 'catalog/base.html' %}
+
+{% block title %}{{ product.name }} | Django Store{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="row g-0">
+        <div class="col-md-5">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="{{ product.name }}">
+            {% else %}
+                <div class="bg-secondary-subtle d-flex align-items-center justify-content-center h-100" style="min-height: 350px;">
+                    <span class="text-muted">Нет изображения</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-7">
+            <div class="card-body">
+                <h1 class="card-title">{{ product.name }}</h1>
+
+                <p class="card-text">
+                    <strong>Описание:</strong><br>
+                    {{ product.description }}
+                </p>
+
+                <p class="card-text">
+                    <strong>Категория:</strong>
+                    <a href="{% url 'catalog:category_products' product.category.pk %}">
+                        {{ product.category }}
+                    </a>
+                </p>
+
+                <p class="card-text">
+                    <strong>Цена:</strong> {{ product.price }} ₽
+                </p>
+
+                <p class="card-text">
+                    <strong>Статус публикации:</strong>
+                    {% if product.is_published %}
+                        опубликован
+                    {% else %}
+                        не опубликован
+                    {% endif %}
+                </p>
+
+                <p class="card-text">
+                    <strong>Владелец:</strong>
+                    {% if product.owner %}
+                        {{ product.owner.email }}
+                    {% else %}
+                        не указан
+                    {% endif %}
+                </p>
+
+                <p class="card-text text-muted">
+                    <small>Создан: {{ product.created_at }}</small><br>
+                    <small>Обновлен: {{ product.updated_at }}</small>
+                </p>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'catalog:home' %}" class="btn btn-secondary">
+                        Назад к товарам
+                    </a>
+
+                    {% if request.user == product.owner or perms.catalog.can_unpublish_product %}
+                        <a href="{% url 'catalog:product_update' product.pk %}" class="btn btn-warning">
+                            Редактировать
+                        </a>
+                    {% endif %}
+
+                    {% if request.user == product.owner or perms.catalog.delete_product %}
+                        <a href="{% url 'catalog:product_delete' product.pk %}" class="btn btn-danger">
+                            Удалить
+                        </a>
+                    {% endif %}
+
+                    {% if perms.catalog.can_unpublish_product and product.is_published %}
+                        <form method="post" action="{% url 'catalog:product_unpublish' product.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger">
+                                Снять с публикации
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
